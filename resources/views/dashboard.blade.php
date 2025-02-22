@@ -49,7 +49,7 @@ https://templatemo.com/tm-591-villa-agency
         <div class="col-lg-8 col-md-8">
           <ul class="info">            
             <li><i class="fa fa-envelope"></i> oyo69@gmail.com</li>
-            <li><i class="fa fa-map"></i> OyO Hotel</li>
+            <li><i class="fa fa-map"></i> villa winda </liw>
           </ul>
         </div>
         <div class="col-lg-4 col-md-4">
@@ -80,7 +80,7 @@ https://templatemo.com/tm-591-villa-agency
                       <li><a href="{{ route('dashboard') }}" class="active">Home</a></li>
                       <li><a href="{{ route('properties') }}">Properties</a></li>
                       <li><a href="{{ route('property') }}">Property Details</a></li>
-                      <li><a href="contact.html">Contact Us</a></li>
+                      <li><a href="{{ route('contact') }}">Contact Us</a></li>
                       <li><a href="{{ route('signature.create') }}">Signature</a></li>
                       <li><a href="{{ route('profile.edit') }}">Profile</a></li>
                       <li><a href="#"><i class="fa fa-calendar"></i> Schedule a visit</a></li>
