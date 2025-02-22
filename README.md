@@ -82,7 +82,7 @@
    
 10. Uji Coba Login dan Register:
    ## Register:
-   ![Wellcome: ](ss/register.png)
+   ![Wellcome: ](ss/registergc.png)
    ## Login:
    ![Wellcome: ](ss/login.png)
    Saat User berhasil melakukan Register atau Login maka akan diarahkan ke halaman Dashboard:
