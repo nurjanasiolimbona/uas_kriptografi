@@ -2,12 +2,12 @@
 ## Implementasi Fitur Autentikasi Menggunakan Laravel Breeze
 1. Membuat Project Baru:  
    ```
-   composer create-project laravel/laravel winda_uas
+   composer create-project laravel/laravel lili_uas
    ```
    
 2. Masuk ke File Project:
    ```
-   cd winda_uas
+   cd lili_uas
    ```
    
 3. Install Laravel Breeze:
@@ -22,13 +22,13 @@
    DB_CONNECTION=mysql
    DB_HOST=127.0.0.1
    DB_PORT=3306
-   DB_DATABASE=winda_uas
+   DB_DATABASE=lili_uas
    DB_USERNAME=root
    DB_PASSWORD=
    ```
    Perubahan:
             ```DB_CONNECTION=sqlite``` --> ```DB_CONNECTION=mysql``` Karena pada dasarnya MySQL memiliki kelebih Dukungan Penuh dan Cocok Untuk Aplikasi Besar.
-            ```DB_DATABASE=Laravel``` --> ```DB_DATABASE=winda_uas``` Menyesuaikan dengan nama database yang dibuat sebelumnya.
+            ```DB_DATABASE=Laravel``` --> ```DB_DATABASE=lili_uas``` Menyesuaikan dengan nama database yang dibuat sebelumnya.
    
 6. Membuat Tabel:
    Jalankan migrasi untuk membuat tabel pengguna dan tabel terkait autentikasi:
@@ -209,7 +209,7 @@
    
    ### Hasil:
    ![Wellcome: ](ss/login.png)
-   ![Wellcome: ](ss/register.png)
+   ![Wellcome: ](ss/registergc.png)
 
 
 ## Membuat Fitur Tanda Tangan Digital Dengan URL Menjadi Sebuah QR Code
