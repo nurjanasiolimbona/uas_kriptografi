@@ -48,8 +48,8 @@ https://templatemo.com/tm-591-villa-agency
       <div class="row">
         <div class="col-lg-8 col-md-8">
           <ul class="info">            
-            <li><i class="fa fa-envelope"></i> oyo69@gmail.com</li>
-            <li><i class="fa fa-map"></i> villa winda </liw>
+            <li><i class="fa fa-envelope"></i> lilinurjanasiolimbona@gmail.com</li>
+            <li><i class="fa fa-map"></i> villa Lili </liw>
           </ul>
         </div>
         <div class="col-lg-4 col-md-4">

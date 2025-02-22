@@ -118,7 +118,7 @@ https://templatemo.com/tm-591-villa-agency
       <div class="item item-1">
         <div class="header-text">
           <span class="category">Maluku, <em>Ambon</em></span>
-          <h2>villa winda!<br>Get the Best Hotel for you</h2>
+          <h2>villa Lili!<br>Get the Best Hotel for you</h2>
         </div>
       </div>
       <div class="item item-2">

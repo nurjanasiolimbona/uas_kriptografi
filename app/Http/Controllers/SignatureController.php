@@ -18,7 +18,7 @@ class SignatureController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'document_url' => 'required|url'
+            'document_url' => 'required|url', 
         ]);
 
         $name = $request->name;
@@ -35,7 +35,7 @@ class SignatureController extends Controller
         $signature = Signature::create([
             'name' => $name,
             'document_url' => $documentUrl,
-            'qr_code_path' => $qrCodePath
+            'qr_code_path' => $qrCodePath,
         ]);
 
         return redirect()->route('signature.show', $signature->id);
