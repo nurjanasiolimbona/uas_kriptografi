@@ -1,66 +1,436 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# PROJECT UAS
+## Implementasi Fitur Autentikasi Menggunakan Laravel Breeze
+1. Membuat Project Baru:  
+   ```
+   composer create-project laravel/laravel winda_uas
+   ```
+   
+2. Masuk ke File Project:
+   ```
+   cd winda_uas
+   ```
+   
+3. Install Laravel Breeze:
+   ```
+   composer require laravel/breeze --dev
+   ```
+   Kemudian pilih ```blade```--> Untuk proyek berbasis Blade (sederhana dan ringan) dan juga agar fokus pada autentikasi dasar.
+   
+4. Migrasi Database:
+   Mengubah pengaturan database di file ```.env```:
+   ```
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=winda_uas
+   DB_USERNAME=root
+   DB_PASSWORD=
+   ```
+   Perubahan:
+            ```DB_CONNECTION=sqlite``` --> ```DB_CONNECTION=mysql``` Karena pada dasarnya MySQL memiliki kelebih Dukungan Penuh dan Cocok Untuk Aplikasi Besar.
+            ```DB_DATABASE=Laravel``` --> ```DB_DATABASE=winda_uas``` Menyesuaikan dengan nama database yang dibuat sebelumnya.
+   
+6. Membuat Tabel:
+   Jalankan migrasi untuk membuat tabel pengguna dan tabel terkait autentikasi:
+   ```
+   php artisan migrate
+   ```
+   
+7. Menjalankan Aplikasi:
+   ```
+   php artisan serve
+   ```
+   Kemudian ```Ctrl + Klik[http://127.0.0.1:8000]```
+   ![Wellcome: ](ss/wellcome.png)
+   Breeze akan menyiapkan rute seperti:
+   - ```/register``` --> Registrasi
+   - ```/login``` --> Login
+   - ```/dashboard``` --> Dashboard (memerlukan autentikasi)
+    
+8. Contoh Code:
+   Semua rute yang berkaitan dengan autentikasi berada di          ```routes/auth.php```. Ini di impor secara otomatis ke dalam Aplikasi.
+   a) Controller untuk Dashboard:
+       Membuat file app/Http/Controllers/DashboardController.php dengan perintah:
+       ```
+       php artisan make:controller DashboardController
+       ```
+      Code :
+       ```
+           <?php
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+            namespace App\Http\Controllers;
+            
+            use Illuminate\Http\Request;
+            
+            class DashboardController extends Controller
+            {
+                public function index()
+            {
+                return view('dashboard');
+            }
+            
+            }
+       ```
+   b) Perbarui rute di ```routes/web.php```:
+       ```
+       use App\Http\Controllers\DashboardController;
+       
+       Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
+       ```
+   d) Breeze secara otomatis sudah menyiap fungsi Logout.
 
-## About Laravel
+   
+10. Uji Coba Login dan Register:
+   ## Register:
+   ![Wellcome: ](ss/register.png)
+   ## Login:
+   ![Wellcome: ](ss/login.png)
+   Saat User berhasil melakukan Register atau Login maka akan diarahkan ke halaman Dashboard:
+   ![Wellcome: ](ss/home.png)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+   Data user akan tersimpan di database yang sudah dibuat sebelumnya, tepatnya pada Tabel ```user```.
+   ![Wellcome: ](ss/DBuser.png)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Membuat middleware di Laravel untuk mencegah serangan XSS
+1. Membuat Projek:
+   ```
+   composer create-project laravel/laravel xss-protection
+   ```
+   
+2. Masuk ke File Projek:
+   ```
+   cd xss-protection
+   ```
+   
+3. Membuat Middleware untuk Mencegah XSS:
+   ```
+   php artisan make:middleware XSSProtection
+   ```
+   
+4. Edit file ```app/Http/Middleware/XSSProtection.php```:
+   ```
+   <?php
 
-## Learning Laravel
+    use Illuminate\Foundation\Application;
+    use Illuminate\Foundation\Configuration\Exceptions;
+    use Illuminate\Foundation\Configuration\Middleware;
+    use App\Http\Middleware\XSSProtection;
+    
+    return Application::configure(basePath: dirname(__DIR__))
+        ->withRouting(
+            web: __DIR__.'/../routes/web.php',
+            commands: __DIR__.'/../routes/console.php',
+            health: '/up',
+        )
+        ->withMiddleware(function (Middleware $middleware) {
+            $middleware->append(XSSProtection::class); // Tambahkan middleware di sini
+        })
+        ->withExceptions(function (Exceptions $exceptions) {
+            //
+        })->create();
+   ```
+   
+5. Mendaftar Middleware di Kernel:
+   Buka file ```app/Http/Kernel.php``` dan tambahkan middleware baru di grup ```web```:
+   ```
+    protected $middlewareGroups = [
+        'web' => [
+            // Middleware bawaan Laravel
+            \App\Http\Middleware\XSSProtection::class, // Tambahkan ini
+        ],
+        'api' => [
+            // Middleware API
+        ],
+    ];
+   ```
+   
+6. Menguji Middleware:
+   Buat controller untuk menguji middleware:
+   ```
+   php artisan make:controller XSSController
+   ```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+   Edit file ```app/Http/Controllers/XSSController.php```:
+   ```
+   <?php
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+    namespace App\Http\Controllers;
+    
+    use Illuminate\Http\Request;
+    
+    class XSSController extends Controller
+    {
+        public function store(Request $request)
+        {
+            return response()->json([
+                'clean_input' => $request->all(),
+            ]);
+        }
+    }
+   ```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+   Tambahkan rute di ```routes/web.php```:
+   ```
+   use App\Http\Controllers\XSSController;
+    
+   Route::post('/xss-test', [XSSController::class, 'store']);
+   ```
 
-## Laravel Sponsors
+   Kirim request menggunakan cuURL:
+   ```
+   Starting Laravel development server: http://127.0.0.1:8000
+   ```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+   Jika middleware XSSProtection berjalan dengan benar, akan melihat output seperti ini:
+   ```
+   {
+      "clean_input": {
+        "input": "alert('xss')"
+      }
+   }
+   ```
 
-### Premium Partners
+## Menambahkan logo sebagai watermark pada halaman login, navbar, dan footer menggunakan Laravel Blade.
+1. Siapkan file gambar yang akan dijadikan sebagai logo watermark. Kemudian file gambar diletakkan di folder ```public/images/logo.png```.
+2. Kemudian masuk ke projek aplikasi yaitu ```winda_uas``` diatas, dan buka file             ```resources/views/layout/navigation.blade.php```. Dan ubah code ini:
+    ```
+    <x-application-logo src="{{ asset('images/custom-logo.png') }}" />
+    ```
+    Menjadi:
+    ```
+    <img src="{{ asset('images/logo.png') }}" alt="Logo" class="h-9 w-auto">
+    ```
+    
+   ### Hasil :
+   ![Wellcome: ](ss/LogoNav.png)
+   
+3. Lakukan hal yang sama untuk merubah logo pada footer dan otomatis akan merubah logo watermark pada halaman Login & Register:
+   
+   ### Hasil:
+   ![Wellcome: ](ss/login.png)
+   ![Wellcome: ](ss/register.png)
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
 
-## Contributing
+## Membuat Fitur Tanda Tangan Digital Dengan URL Menjadi Sebuah QR Code
+1. Install Library ```simple-qrcode```:
+   ```
+   composer require simplesoftwareio/simple-qrcode
+   ```
+2. Menambahkan Controller pada ```app/Http/Controllers/```:
+   ```
+   php artisan make:controller QRCodeController
+   ```
+3. Membuat Model dan Migrasi Database:
+   ```
+   php artisan make:model Signature -m
+   ```
+4. Edit Migrasi ```database/migrations/2025_02_19_180020_create_qr_codes_table.php```:
+   ```
+        public function up(): void {
+            Schema::create('signatures', function (Blueprint $table) {
+                $table->id();
+                $table->string('name');
+                $table->string('document_url');
+                $table->string('qr_code_path');
+                $table->timestamps();
+            });
+        }
+   ```
+5. Jalankan Migrasi:
+   ```
+   php artisan migrate
+   ```
+6. Membuat route di ```routes/web.php```:
+   ```
+    use App\Http\Controllers\ProfileController;
+    use Illuminate\Support\Facades\Route;
+    use App\Http\Controllers\SignatureController;
+    use App\Http\Controllers\DashboardController;
+    use App\Http\Controllers\PropertiesController;
+    use App\Http\Controllers\PropertyController;
+    
+    Route::get('/signature/create', [SignatureController::class, 'create'])->name('signature.create');
+    Route::post('/signature/store', [SignatureController::class, 'store'])->name('signature.store');
+    Route::get('/signature/{id}', [SignatureController::class, 'show'])->name('signature.show');
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+   ```
+7. Membuat Tampilan Form Input:
+   ```
+   <body>
+        <div class="container">
+            <h1>Buat Tanda Tangan Digital</h1>
+            <form action="{{ route('signature.store') }}" method="POST">
+                @csrf
+                <label for="name">Nama:</label>
+                <input type="text" id="name" name="name" placeholder="Masukkan nama Anda" required>
+    
+                <label for="document_url">URL Dokumen:</label>
+                <input type="url" id="document_url" name="document_url" placeholder="Masukkan URL dokumen" required>
+    
+                <button type="submit">Buat QR Code</button>
+            </form>
+        </div>
+    </body>
+   ```
 
-## Code of Conduct
+   Dan buat file ```resources/view/signature/show.blade.php``` untuk tampilan menampilkan qr code setelah berhasil di buat:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+   ```
+   <body>
+    <div class="container">
+            <h1>Detail Tanda Tangan Digital</h1>
+            <p><strong>Nama:</strong> {{ $signature->name }}</p>
+            <p><strong>URL Dokumen:</strong> <a href="{{ $signature->document_url }}" target="_blank">{{ $signature->document_url }}</a></p>
+            <p><strong>QR Code:</strong></p>
+            <img src="{{ asset('storage/' . $signature->qr_code_path) }}" alt="QR Code">
+        </div>
+    </body>
+   ```
+9. Membuat Logika di Controller:
+   - ```Edit app/Http/Controllers/SignatureController.php```:
+     ```
+        use Illuminate\Http\Request;
+        use App\Models\Signature;
+        use SimpleSoftwareIO\QrCode\Facades\QrCode;
+        use Illuminate\Support\Facades\Storage;
+        
+        class SignatureController extends Controller
+        {
+            public function create()
+            {
+                return view('signature.create');
+            }
+        
+            public function store(Request $request)
+            {
+                $request->validate([
+                    'name' => 'required|string|max:255',
+                    'document_url' => 'required|url'
+                ]);
+        
+                $name = $request->name;
+                $documentUrl = $request->document_url;
+        
+                // Generate QR Code
+                $qrCodeFileName = uniqid('qrcode_') . '.png';
+                $qrCodePath = 'qrcodes/' . $qrCodeFileName;
+        
+                $qrCode = QrCode::format('png')->size(200)->generate($documentUrl);
+                Storage::disk('public')->put($qrCodePath, $qrCode);
+        
+                // Simpan ke database
+                $signature = Signature::create([
+                    'name' => $name,
+                    'document_url' => $documentUrl,
+                    'qr_code_path' => $qrCodePath
+                ]);
+        
+                return redirect()->route('signature.show', $signature->id);
+            }
+        
+            public function show($id)
+            {
+                $signature = Signature::findOrFail($id);
+                return view('signature.show', compact('signature'));
+            }
+        }
 
-## Security Vulnerabilities
+     ```
+     
+   - Tambahkan pintasan di menu Dashboard untuk menuju ke halaman Create QR Code. Edit ```resources/views/layout/Navigation.blade.php```:
+     ```
+     <!-- Genetate QR Code -->
+                    <x-nav-link :href="route('create-qrcode')" :active="request()->routeIs('create-qrcode')">
+                        {{ __('Create QR Code') }}
+                    </x-nav-link>
+     ```
+10. Menguji Fitur:
+   Input URL dokumen:
+   ![Wellcome: ](ss/UjiQr.png)
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+   Hasil:
+   ![Wellcome: ](ss/HasilUjiQr.png)
+11. URL akan disimpan ke database pada tabel winda_uas:
+    ![Wellcome: ](ss/DBqr.png)
 
-## License
+    - Dan untuk QR Code yang dihasilkan akan tersimpan di ```storage/app/public/qr_codes/``` sebagai format .png:
+    
+![Wellcome: ](ss/QrStr.png)
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+    Fitur Generator QR Code dari sebuah URL berhasil di buat.
+
+
+## Mengiplementasikan Captcha pada form login/registrasi Laravel untuk menghindari serangan bot.
+1. Kunjungi Google reCAPTCHA Admin di browser
+2. Pilih reCAPTCHA v2, dan pilih "I'm not robot"
+3. Masukkan domain aplikasi, karena disini saya menggunakan local host maka saya memasukkan domain:
+   ```localhost```
+   kemudian tambahkan domain lagi, yaitu alamat lokal aplikasi Laravel saat menjalannya di browser:
+   ```127.0.0.1```
+
+4. Instalasi Paket untuk reCAPTCHA
+   Saya menggunakan paket ```anhskohbo/no-captcha``` untuk mempermudah integrasi reCAPTCHA di Laravel:
+   ```
+   composer require anhskohbo/no-captcha
+   ```
+5. Konfigurasi Google reCAPTCHA
+   Tambahkan ```NOCAPTCHA_SECRET``` dan ```NOCAPTCHA_SITEKEY``` di file ```.env```:
+   ```
+   NOCAPTCHA_SECRET=your-secret-key
+   NOCAPTCHA_SITEKEY=your-site-key
+   ```
+6. Ubah key pada file ```.env```:
+   ![Wellcome: ](ss/gs.png)
+   ```
+   NOCAPTCHA_SITEKEY=6Leu9t4qAAAAAApKhoG8mNujjp-tnYGioc4s2EWu
+   NOCAPTCHA_SECRET=6Leu9t4qAAAAAFNqD5W9xWqUyq_ovjftrCYM0McU
+   ```
+
+   Mendaftarkan konfigurasi di ```config/service.php```:
+   ```
+   // config/services.php
+   return [
+        // ...
+        'recaptcha' => [
+            'sitekey' => env('NOCAPTCHA_SITEKEY'),
+            'secret' => env('NOCAPTCHA_SECRET'),
+        ],
+   ];
+   ```
+7. Menambahkan reCAPTCHA di Halaman Login
+   ## Register
+   ```
+   {!! NoCaptcha::display() !!}
+
+        <div class="flex items-center justify-end mt-4">
+            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
+                {{ __('Already registered?') }}
+            </a>
+
+            <x-primary-button class="ms-4">
+                {{ __('Register') }}
+            </x-primary-button>
+        </div>
+    </form>
+
+    {{-- Load Script reCAPTCHA --}}
+    {!! NoCaptcha::renderJs() !!}
+   ```
+8. Validasi reCAPTCHA di Controller ```app/Http/Controllers/Auth/RegisteredUserController.php```
+   ```
+   $request->validate([
+                'name' => ['required', 'string', 'max:255'],
+                'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+                'password' => ['required', 'confirmed', Rules\Password::defaults()],
+                'g-recaptcha-response' => 'required|captcha',
+            ]);
+   ```
+
+9. Uji Coba
+
+   # REGISTER
+   ![Wellcome: ](ss/registergc.png)
+    
+    
+    
